@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getFlagUrl } from "../utils/countryFlag";
 
 function Standings({ GROUPS, getGroupStandings, getBestThirdPlaceTeams }) {
   const [hoveredTeam, setHoveredTeam] = useState(null);
@@ -78,7 +79,7 @@ function Standings({ GROUPS, getGroupStandings, getBestThirdPlaceTeams }) {
                           <td className="text-center font-bold">{idx + 1}</td>
                           <td>
                             <div className="team-cell">
-                              <span className="team-flag">{team.flag}</span>
+                              <img src={getFlagUrl(team.code)} alt={team.name} width={24} height={18} style={{ marginRight: "8px", borderRadius: "2px" }} />
                               <span style={{ fontWeight: isTop2 ? "600" : "normal" }}>{team.name}</span>
                               <span className="team-code">{team.code}</span>
                             </div>
@@ -160,7 +161,7 @@ function Standings({ GROUPS, getGroupStandings, getBestThirdPlaceTeams }) {
                     <td className="font-bold">Group {team.group}</td>
                     <td>
                       <div className="team-cell">
-                        <span className="team-flag">{team.flag}</span>
+                        <img src={getFlagUrl(team.code)} alt={team.name} width={24} height={18} style={{ marginRight: "8px", borderRadius: "2px" }} />
                         <span>{team.name}</span>
                         <span className="team-code">{team.code}</span>
                       </div>

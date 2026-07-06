@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getFlagUrl } from "../utils/countryFlag";
 
 function Results({ matches, TEAMS }) {
   const [filter, setFilter] = useState("All");
@@ -14,10 +15,10 @@ function Results({ matches, TEAMS }) {
   return (
     <div className="container fade-in" style={{ paddingTop: "30px", marginBottom: "50px" }}>
       <h2 style={{ fontFamily: "var(--font-heading)", marginBottom: "8px", fontSize: "28px" }}>
-        Tournament Results
+        Tournament Match Results
       </h2>
       <p style={{ color: "var(--text-muted)", marginBottom: "30px", fontSize: "15px" }}>
-        Filter and browse matches that are finished, currently live, or upcoming.
+        Full results of all simulated and scheduled matches across all tournament stages.
       </p>
 
       {/* Filter Tabs */}
@@ -52,9 +53,20 @@ function Results({ matches, TEAMS }) {
                 </div>
 
                 <div className="match-teams-layout" style={{ margin: "16px 0" }}>
-                  <div className="team-display home">
-                    <span className="team-display-flag">{home ? home.flag : "🏳️"}</span>
+                  <div className="team-display home" style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-end" }}>
                     <span className="team-display-name">{home ? home.name : m.placeholderHome || "TBD"}</span>
+                    {home ? (
+                      <img
+                        src={getFlagUrl(home.code)}
+                        alt={home.name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
+                    ) : (
+                      <span className="team-display-flag">🏳️</span>
+                    )}
                   </div>
 
                   <div className="match-score-center">
@@ -74,8 +86,19 @@ function Results({ matches, TEAMS }) {
                     )}
                   </div>
 
-                  <div className="team-display away">
-                    <span className="team-display-flag">{away ? away.flag : "🏳️"}</span>
+                  <div className="team-display away" style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-start" }}>
+                    {away ? (
+                      <img
+                        src={getFlagUrl(away.code)}
+                        alt={away.name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
+                    ) : (
+                      <span className="team-display-flag">🏳️</span>
+                    )}
                     <span className="team-display-name">{away ? away.name : m.placeholderAway || "TBD"}</span>
                   </div>
                 </div>

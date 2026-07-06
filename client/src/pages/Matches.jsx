@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getFlagUrl } from "../utils/countryFlag";
 
 function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast }) {
   const [selectedGroupTab, setSelectedGroupTab] = useState("A");
@@ -100,9 +101,20 @@ function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast }) {
 
               <div className="match-teams-layout" style={{ margin: "16px 0" }}>
                 {/* Home */}
-                <div className="team-display home" style={{ flex: "1.2" }}>
-                  <span className="team-display-flag">{home?.flag}</span>
+                <div className="team-display home" style={{ flex: "1.2", display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-end" }}>
                   <span className="team-display-name" style={{ fontSize: "14px" }}>{home?.name}</span>
+                  {home ? (
+                    <img
+                      src={getFlagUrl(home.code)}
+                      alt={home.name}
+                      width={24}
+                      height={18}
+                      loading="lazy"
+                      style={{ objectFit: "cover", borderRadius: "2px" }}
+                    />
+                  ) : (
+                    <span className="team-display-flag">🏳️</span>
+                  )}
                 </div>
 
                 {/* Score Input/Display */}
@@ -137,8 +149,19 @@ function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast }) {
                 </div>
 
                 {/* Away */}
-                <div className="team-display away" style={{ flex: "1.2" }}>
-                  <span className="team-display-flag">{away?.flag}</span>
+                <div className="team-display away" style={{ flex: "1.2", display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-start" }}>
+                  {away ? (
+                    <img
+                      src={getFlagUrl(away.code)}
+                      alt={away.name}
+                      width={24}
+                      height={18}
+                      loading="lazy"
+                      style={{ objectFit: "cover", borderRadius: "2px" }}
+                    />
+                  ) : (
+                    <span className="team-display-flag">🏳️</span>
+                  )}
                   <span className="team-display-name" style={{ fontSize: "14px" }}>{away?.name}</span>
                 </div>
               </div>

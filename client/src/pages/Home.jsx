@@ -1,4 +1,5 @@
 import React from "react";
+import { getFlagUrl } from "../utils/countryFlag";
 
 function Home({ setActiveTab, getGroupStandings, matches, TEAMS }) {
   // 1. Group Standings Previews for Group A, B, C
@@ -64,7 +65,14 @@ function Home({ setActiveTab, getGroupStandings, matches, TEAMS }) {
                             <td className="text-center font-bold">{idx + 1}</td>
                             <td>
                               <div className="team-cell">
-                                <span className="team-flag">{team.flag}</span>
+                                <img
+                                  src={getFlagUrl(team.code)}
+                                  alt={team.name}
+                                  width={24}
+                                  height={18}
+                                  loading="lazy"
+                                  style={{ objectFit: "cover", borderRadius: "2px", marginRight: "8px" }}
+                                />
                                 <span>{team.name}</span>
                               </div>
                             </td>
@@ -105,7 +113,14 @@ function Home({ setActiveTab, getGroupStandings, matches, TEAMS }) {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span>{home?.flag}</span>
+                      <img
+                        src={getFlagUrl(home?.code)}
+                        alt={home?.name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
                       <span style={{ fontWeight: 600, fontSize: "14px" }}>{home?.name}</span>
                     </div>
                     <span style={{ fontWeight: "bold", fontSize: "14px", color: "var(--text-muted)" }}>
@@ -114,7 +129,14 @@ function Home({ setActiveTab, getGroupStandings, matches, TEAMS }) {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span>{away?.flag}</span>
+                      <img
+                        src={getFlagUrl(away?.code)}
+                        alt={away?.name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
                       <span style={{ fontWeight: 600, fontSize: "14px" }}>{away?.name}</span>
                     </div>
                     <span style={{ fontWeight: "bold", fontSize: "14px", color: "var(--text-muted)" }}>

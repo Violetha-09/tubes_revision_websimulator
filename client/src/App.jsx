@@ -11,6 +11,7 @@ import Panduan from "./pages/Panduan";
 import AdminDashboard from "./admin/AdminDashboard";
 
 import { TEAMS as INITIAL_TEAMS, GROUPS, generateGroupMatches, initialKnockoutMatches, STADIUMS } from "./data/mockData";
+import * as api from "./utils/api";
 
 function App() {
   const navigate = useNavigate();
@@ -23,7 +24,14 @@ function App() {
   };
 
   // Navigation & UI State
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      localStorage.setItem("theme", "light");
+      return "light";
+    }
+    return saved || "light";
+  });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [password, setPassword] = useState("");
   const [isAdmin, setIsAdmin] = useState(() => !!localStorage.getItem("adminToken"));
@@ -32,49 +40,41 @@ function App() {
   const [toasts, setToasts] = useState([]);
 
   // Data State (Loaded from LocalStorage or initialized)
-  const [teams, setTeams] = useState(() => {
-    const saved = localStorage.getItem("wc_teams_48_v2");
-    return saved ? JSON.parse(saved) : INITIAL_TEAMS;
-  });
+  // Data State
+  const [teams, setTeams] = useState(INITIAL_TEAMS);
+  const [matches, setMatches] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [matches, setMatches] = useState(() => {
-    const saved = localStorage.getItem("wc_matches_48_v2");
-    let initialMatches = saved ? JSON.parse(saved) : generateGroupMatches().concat(initialKnockoutMatches);
-    
-    // Patch any null teams with dummy data to satisfy the requirement that no match should be empty
-    const dummyCodes = ["MEX", "ARG", "BRA", "FRA", "ESP", "ENG", "GER", "POR", "ITA", "NED", "CRO", "URU", "USA", "SEN", "JPN", "KOR"];
-    initialMatches = initialMatches.map((m, idx) => {
-      if (!m.homeTeam) {
-        m.homeTeam = dummyCodes[(idx * 2) % dummyCodes.length];
-        if (m.type === "knockout") {
-          m.homeScore = m.homeScore ?? (Math.floor(Math.random() * 4) + 1);
-          m.status = m.status === "scheduled" ? "finished" : m.status;
-        }
-      }
-      if (!m.awayTeam) {
-        m.awayTeam = dummyCodes[(idx * 2 + 1) % dummyCodes.length];
-        if (m.type === "knockout") {
-          m.awayScore = m.awayScore ?? (Math.floor(Math.random() * 3) + 1);
-          if (m.status === "finished") {
-             if (m.homeScore === m.awayScore) m.penaltyWinner = Math.random() > 0.5 ? m.homeTeam : m.awayTeam;
-             m.winner = m.homeScore > m.awayScore ? m.homeTeam : (m.awayScore > m.homeScore ? m.awayTeam : m.penaltyWinner);
-          }
-        }
-      }
-      return m;
-    });
-    
-    return initialMatches;
-  });
-
-  // Keep localStorage updated
+  // Fetch initial teams and matches from backend
   useEffect(() => {
-    localStorage.setItem("wc_teams_48_v2", JSON.stringify(teams));
-  }, [teams]);
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const teamsData = await api.fetchTeams();
+        const teamsMap = {};
+        teamsData.forEach((t) => {
+          teamsMap[t.code] = t;
+        });
+        setTeams(teamsMap);
 
-  useEffect(() => {
-    localStorage.setItem("wc_matches_48_v2", JSON.stringify(matches));
-  }, [matches]);
+        const matchesData = await api.fetchMatches();
+        setMatches(matchesData);
+      } catch (err) {
+        console.error("Error loading data from backend, using fallbacks:", err);
+        const savedTeams = localStorage.getItem("wc_teams_48_v2");
+        if (savedTeams) setTeams(JSON.parse(savedTeams));
+        const savedMatches = localStorage.getItem("wc_matches_48_v2");
+        if (savedMatches) {
+          setMatches(JSON.parse(savedMatches));
+        } else {
+          setMatches(generateGroupMatches().concat(initialKnockoutMatches));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -101,17 +101,20 @@ function App() {
     addToast("Secret Trigger activated! Please log in.", "warning");
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === "admin123") {
-      setIsAdmin(true);
-      localStorage.setItem("adminToken", "mock-jwt-token-48");
-      setShowLoginModal(false);
-      setPassword("");
-      addToast("Successfully logged in as Admin!");
-      setActiveTab("admin");
-    } else {
-      addToast("Invalid password! (Hint: admin123)", "error");
+    try {
+      const result = await api.login("admin", password);
+      if (result.success) {
+        setIsAdmin(true);
+        localStorage.setItem("adminToken", result.data.token);
+        setShowLoginModal(false);
+        setPassword("");
+        addToast("Successfully logged in as Admin!");
+        setActiveTab("admin");
+      }
+    } catch (err) {
+      addToast(err.message || "Invalid password!", "error");
     }
   };
 
@@ -207,34 +210,32 @@ function App() {
   };
 
   // --- TOURNAMENT CONTROLS ---
-  const handleResetTournament = () => {
+  const handleResetTournament = async () => {
     if (window.confirm("Are you sure you want to reset all tournament data? All scores and knockout stages will be cleared.")) {
-      const cleanMatches = generateGroupMatches().concat(initialKnockoutMatches);
-      setTeams(INITIAL_TEAMS);
-      setMatches(cleanMatches);
-      addToast("Tournament reset successfully!");
+      try {
+        const result = await api.resetTournament();
+        setTeams(INITIAL_TEAMS);
+        setMatches(result.matches);
+        addToast("Tournament reset successfully!");
+      } catch (err) {
+        console.error(err);
+        addToast("Failed to reset tournament on backend.", "error");
+      }
     }
   };
 
-  const handleSimulateGroupStage = () => {
-    const updated = matches.map((m) => {
-      if (m.type === "group" && m.status !== "finished") {
-        const homeScore = Math.floor(Math.random() * 4) + 1;
-        const awayScore = Math.floor(Math.random() * 3) + 1;
-        return {
-          ...m,
-          homeScore,
-          awayScore,
-          status: "finished"
-        };
-      }
-      return m;
-    });
-    setMatches(updated);
-    addToast("All remaining group stage matches simulated!");
+  const handleSimulateGroupStage = async () => {
+    try {
+      const result = await api.simulateGroupStage();
+      setMatches(result.matches);
+      addToast("All remaining group stage matches simulated!");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to simulate group stage on backend.", "error");
+    }
   };
 
-  const handleAdvanceToKnockout = () => {
+  const handleAdvanceToKnockout = async () => {
     const groupMatches = matches.filter((m) => m.type === "group");
     const unplayed = groupMatches.filter((m) => m.status !== "finished");
 
@@ -244,87 +245,15 @@ function App() {
       }
     }
 
-    // Get group standings
-    const allStandings = GROUPS.reduce((acc, g) => {
-      acc[g] = getGroupStandings(g);
-      return acc;
-    }, {});
-
-    // Best 3rd place teams
-    const bestThirds = getBestThirdPlaceTeams(allStandings);
-    
-    // Map of qualifiers
-    // Winner = Rank 0, RunnerUp = Rank 1, 3rd Place (if in bestThirds)
-    const winners = {};
-    const runnersUp = {};
-    
-    GROUPS.forEach((g) => {
-      winners[g] = allStandings[g][0]?.code || null;
-      runnersUp[g] = allStandings[g][1]?.code || null;
-    });
-
-    const getBestThirdCode = (idx) => {
-      return bestThirds[idx]?.code || null;
-    };
-
-    // Inject qualifiers into R32 nodes
-    const updated = matches.map((m) => {
-      if (m.type === "knockout") {
-        const cleanNode = {
-          ...m,
-          homeScore: null,
-          awayScore: null,
-          status: "scheduled",
-          winner: null,
-          penaltyWinner: null
-        };
-
-        // Inject based on R32 pairing rules
-        if (m.id === "R32-1") { cleanNode.homeTeam = winners["A"]; cleanNode.awayTeam = getBestThirdCode(0); }
-        else if (m.id === "R32-2") { cleanNode.homeTeam = runnersUp["B"]; cleanNode.awayTeam = runnersUp["C"]; }
-        else if (m.id === "R32-3") { cleanNode.homeTeam = winners["D"]; cleanNode.awayTeam = getBestThirdCode(1); }
-        else if (m.id === "R32-4") { cleanNode.homeTeam = winners["E"]; cleanNode.awayTeam = runnersUp["F"]; }
-        
-        else if (m.id === "R32-5") { cleanNode.homeTeam = winners["F"]; cleanNode.awayTeam = getBestThirdCode(2); }
-        else if (m.id === "R32-6") { cleanNode.homeTeam = runnersUp["G"]; cleanNode.awayTeam = runnersUp["H"]; }
-        else if (m.id === "R32-7") { cleanNode.homeTeam = winners["H"]; cleanNode.awayTeam = getBestThirdCode(3); }
-        else if (m.id === "R32-8") { cleanNode.homeTeam = winners["I"]; cleanNode.awayTeam = runnersUp["J"]; }
-        
-        else if (m.id === "R32-9") { cleanNode.homeTeam = winners["B"]; cleanNode.awayTeam = getBestThirdCode(4); }
-        else if (m.id === "R32-10") { cleanNode.homeTeam = runnersUp["A"]; cleanNode.awayTeam = runnersUp["D"]; }
-        else if (m.id === "R32-11") { cleanNode.homeTeam = winners["C"]; cleanNode.awayTeam = getBestThirdCode(5); }
-        else if (m.id === "R32-12") { cleanNode.homeTeam = winners["G"]; cleanNode.awayTeam = runnersUp["E"]; }
-        
-        else if (m.id === "R32-13") { cleanNode.homeTeam = winners["J"]; cleanNode.awayTeam = getBestThirdCode(6); }
-        else if (m.id === "R32-14") { cleanNode.homeTeam = runnersUp["K"]; cleanNode.awayTeam = runnersUp["L"]; }
-        else if (m.id === "R32-15") { cleanNode.homeTeam = winners["K"]; cleanNode.awayTeam = getBestThirdCode(7); }
-        else if (m.id === "R32-16") { cleanNode.homeTeam = winners["L"]; cleanNode.awayTeam = runnersUp["I"]; }
-        
-        else {
-          // Fill higher bracket nodes with dummy teams so they are not empty
-          cleanNode.homeTeam = getBestThirdCode(Math.floor(Math.random()*7)) || "MEX";
-          cleanNode.awayTeam = getBestThirdCode(Math.floor(Math.random()*7)) || "ARG";
-          cleanNode.homeScore = Math.floor(Math.random()*3) + 1;
-          cleanNode.awayScore = Math.floor(Math.random()*2) + 1;
-          cleanNode.status = "finished";
-          if (cleanNode.status === "finished") {
-             if (cleanNode.homeScore === cleanNode.awayScore) cleanNode.penaltyWinner = Math.random() > 0.5 ? cleanNode.homeTeam : cleanNode.awayTeam;
-             cleanNode.winner = cleanNode.homeScore > cleanNode.awayScore ? cleanNode.homeTeam : (cleanNode.awayScore > cleanNode.homeScore ? cleanNode.awayTeam : cleanNode.penaltyWinner);
-          }
-        }
-
-        // Fallback for R32 if null
-        if (!cleanNode.homeTeam) cleanNode.homeTeam = "BRA";
-        if (!cleanNode.awayTeam) cleanNode.awayTeam = "FRA";
-
-        return cleanNode;
-      }
-      return m;
-    });
-
-    setMatches(updated);
-    addToast("Advanced to Knockout Stage! Round of 32 populated.");
-    setActiveTab("bracket");
+    try {
+      const result = await api.advanceToKnockout();
+      setMatches(result.matches);
+      addToast("Advanced to Knockout Stage! Round of 32 populated.");
+      setActiveTab("bracket");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to advance to knockout stage on backend.", "error");
+    }
   };
 
   return (
@@ -370,6 +299,7 @@ function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onSecretTrigger={handleSecretTrigger}
+        isAdmin={isAdmin}
       />
 
       {/* Main Pages Switcher */}

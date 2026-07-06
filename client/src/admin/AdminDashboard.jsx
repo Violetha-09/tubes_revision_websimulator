@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as api from "../utils/api";
 
 function AdminDashboard({
   matches,
@@ -38,7 +39,7 @@ function AdminDashboard({
   const [editStatus, setEditStatus] = useState("scheduled");
 
   // --- HANDLER: Team Operations ---
-  const handleAddTeam = (e) => {
+  const handleAddTeam = async (e) => {
     e.preventDefault();
     const code = newTeamCode.trim().toUpperCase();
     const name = newTeamName.trim();
@@ -51,21 +52,27 @@ function AdminDashboard({
       return;
     }
 
-    const updatedTeams = {
-      ...TEAMS,
-      [code]: { id: code, name, code, group: newTeamGroup, flag: newTeamFlag }
-    };
-    setTeams(updatedTeams);
-    addToast(`Team ${name} (${code}) added successfully!`);
+    try {
+      const response = await api.addTeam({ code, name, group: newTeamGroup, flag: newTeamFlag });
+      const updatedTeams = {
+        ...TEAMS,
+        [code]: response.team
+      };
+      setTeams(updatedTeams);
+      addToast(`Team ${name} (${code}) added successfully!`);
 
-    // Reset Form
-    setNewTeamCode("");
-    setNewTeamName("");
-    setNewTeamGroup("A");
-    setNewTeamFlag("🏳️");
+      // Reset Form
+      setNewTeamCode("");
+      setNewTeamName("");
+      setNewTeamGroup("A");
+      setNewTeamFlag("🏳️");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to add team on backend.", "error");
+    }
   };
 
-  const handleEditTeam = (e) => {
+  const handleEditTeam = async (e) => {
     e.preventDefault();
     if (!selectedTeamCode) return;
 
@@ -75,34 +82,45 @@ function AdminDashboard({
       return;
     }
 
-    const updatedTeams = {
-      ...TEAMS,
-      [selectedTeamCode]: {
-        ...TEAMS[selectedTeamCode],
+    try {
+      const response = await api.updateTeam(selectedTeamCode, {
         name,
         group: editTeamGroup,
         flag: editTeamFlag
-      }
-    };
-    setTeams(updatedTeams);
-    addToast(`Team ${selectedTeamCode} updated successfully!`);
+      });
+      const updatedTeams = {
+        ...TEAMS,
+        [selectedTeamCode]: response.team
+      };
+      setTeams(updatedTeams);
+      addToast(`Team ${selectedTeamCode} updated successfully!`);
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update team on backend.", "error");
+    }
   };
 
-  const handleDeleteTeam = (code) => {
+  const handleDeleteTeam = async (code) => {
     if (window.confirm(`Are you sure you want to delete team ${code}?`)) {
-      const updatedTeams = { ...TEAMS };
-      delete updatedTeams[code];
-      setTeams(updatedTeams);
-      addToast(`Team ${code} deleted.`);
-      if (selectedTeamCode === code) {
-        setSelectedTeamCode("");
-        setEditTeamName("");
+      try {
+        await api.deleteTeam(code);
+        const updatedTeams = { ...TEAMS };
+        delete updatedTeams[code];
+        setTeams(updatedTeams);
+        addToast(`Team ${code} deleted.`);
+        if (selectedTeamCode === code) {
+          setSelectedTeamCode("");
+          setEditTeamName("");
+        }
+      } catch (err) {
+        console.error(err);
+        addToast("Failed to delete team on backend.", "error");
       }
     }
   };
 
   // --- HANDLER: Match Operations ---
-  const handleUpdateMatchDetails = (e) => {
+  const handleUpdateMatchDetails = async (e) => {
     e.preventDefault();
     if (!selectedMatchId) return;
 
@@ -123,95 +141,33 @@ function AdminDashboard({
       }
     }
 
-    let winnerTeam = null;
-    if (matchToUpdate.type === "knockout" && editStatus === "finished") {
-      if (homeScoreVal > awayScoreVal) {
-        winnerTeam = matchToUpdate.homeTeam;
-      } else if (awayScoreVal > homeScoreVal) {
-        winnerTeam = matchToUpdate.awayTeam;
-      } else {
-        winnerTeam = editPenaltyWinner;
-      }
+    try {
+      const response = await api.updateMatch(selectedMatchId, {
+        homeScore: homeScoreVal,
+        awayScore: awayScoreVal,
+        status: editStatus,
+        stadium: editStadium,
+        date: editDate,
+        kickoff: editKickoff,
+        penaltyWinner: editStatus === "finished" && homeScoreVal === awayScoreVal ? editPenaltyWinner : null
+      });
+
+      setMatches(response.matches);
+      addToast(`Match ${selectedMatchId} updated successfully!`);
+
+      // Reset Form
+      setSelectedMatchId("");
+      setEditHomeScore("");
+      setEditAwayScore("");
+      setEditPenaltyWinner("");
+      setEditStadium("");
+      setEditDate("");
+      setEditKickoff("");
+      setEditStatus("scheduled");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update match on backend.", "error");
     }
-
-    let updatedMatches = matches.map((m) => {
-      if (m.id === selectedMatchId) {
-        return {
-          ...m,
-          homeScore: homeScoreVal,
-          awayScore: awayScoreVal,
-          status: editStatus,
-          stadium: editStadium,
-          date: editDate,
-          kickoff: editKickoff,
-          winner: winnerTeam,
-          penaltyWinner: editStatus === "finished" && homeScoreVal === awayScoreVal ? editPenaltyWinner : null
-        };
-      }
-      return m;
-    });
-
-    // Propagate winners if knockout
-    if (matchToUpdate.type === "knockout" && editStatus === "finished" && winnerTeam) {
-      const nextMatchId = matchToUpdate.nextMatchId;
-      if (nextMatchId) {
-        let tempMatches = [...updatedMatches];
-        tempMatches = tempMatches.map((m) => {
-          if (m.id === nextMatchId) {
-            const nextNode = { ...m };
-            if (matchToUpdate.isHomeInNextMatch) {
-              nextNode.homeTeam = winnerTeam;
-            } else {
-              nextNode.awayTeam = winnerTeam;
-            }
-            nextNode.homeScore = null;
-            nextNode.awayScore = null;
-            nextNode.status = "scheduled";
-            nextNode.winner = null;
-            return nextNode;
-          }
-          return m;
-        });
-
-        // Clear recursively for nodes after the next node
-        const nextNode = tempMatches.find(m => m.id === nextMatchId);
-        let nextNextId = nextNode.nextMatchId;
-        while (nextNextId) {
-          const currentNext = nextNextId;
-          let nextFound = false;
-          tempMatches = tempMatches.map((m) => {
-            if (m.id === currentNext) {
-              nextFound = true;
-              const node = { ...m };
-              node.homeTeam = null;
-              node.awayTeam = null;
-              node.homeScore = null;
-              node.awayScore = null;
-              node.status = "scheduled";
-              node.winner = null;
-              nextNextId = node.nextMatchId;
-              return node;
-            }
-            return m;
-          });
-          if (!nextFound) break;
-        }
-        updatedMatches = tempMatches;
-      }
-    }
-
-    setMatches(updatedMatches);
-    addToast(`Match ${selectedMatchId} updated successfully!`);
-
-    // Reset Form
-    setSelectedMatchId("");
-    setEditHomeScore("");
-    setEditAwayScore("");
-    setEditPenaltyWinner("");
-    setEditStadium("");
-    setEditDate("");
-    setEditKickoff("");
-    setEditStatus("scheduled");
   };
 
   return (

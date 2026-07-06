@@ -37,4 +37,17 @@ model Match {
   placeholderAway   String?
   winner            String?
   penaltyWinner     String?
+  stadium           String?
+  date              String?
+  kickoff           String?
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      String   @default("User")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

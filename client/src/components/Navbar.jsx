@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Navbar({ activeTab, setActiveTab, onSecretTrigger }) {
+function Navbar({ activeTab, setActiveTab, onSecretTrigger, isAdmin }) {
   return (
     <header className="navbar">
       <div className="container nav-container">
@@ -40,6 +40,11 @@ function Navbar({ activeTab, setActiveTab, onSecretTrigger }) {
           <button className={`nav-btn ${activeTab === "panduan" ? "active" : ""}`} onClick={() => setActiveTab("panduan")}>
             Panduan
           </button>
+          {isAdmin && (
+            <button className={`nav-btn ${activeTab === "admin" ? "active" : ""}`} onClick={() => setActiveTab("admin")}>
+              Admin
+            </button>
+          )}
         </nav>
       </div>
     </header>

@@ -1,4 +1,5 @@
 import React from "react";
+import { getFlagUrl } from "../utils/countryFlag";
 
 function Bracket({ matches, TEAMS }) {
   const activeWinner = matches.find((m) => m.id === "F")?.winner;
@@ -20,8 +21,19 @@ function Bracket({ matches, TEAMS }) {
         
         {/* Home Team */}
         <div className={`bracket-node-team ${homeWinnerClass}`}>
-          <div className="bracket-node-team-info">
-            <span>{homeTeamObj?.flag || "🏳️"}</span>
+          <div className="bracket-node-team-info" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {homeTeamObj ? (
+              <img
+                src={getFlagUrl(homeTeamObj.code)}
+                alt={homeTeamObj.name}
+                width={24}
+                height={18}
+                loading="lazy"
+                style={{ objectFit: "cover", borderRadius: "2px" }}
+              />
+            ) : (
+              <span style={{ fontSize: "16px" }}>🏳️</span>
+            )}
             <span style={{ fontSize: "12px" }}>{homeTeamObj?.name || m.placeholderHome}</span>
           </div>
           {m.status === "finished" && m.homeTeam && (
@@ -34,8 +46,19 @@ function Bracket({ matches, TEAMS }) {
 
         {/* Away Team */}
         <div className={`bracket-node-team ${awayWinnerClass}`}>
-          <div className="bracket-node-team-info">
-            <span>{awayTeamObj?.flag || "🏳️"}</span>
+          <div className="bracket-node-team-info" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {awayTeamObj ? (
+              <img
+                src={getFlagUrl(awayTeamObj.code)}
+                alt={awayTeamObj.name}
+                width={24}
+                height={18}
+                loading="lazy"
+                style={{ objectFit: "cover", borderRadius: "2px" }}
+              />
+            ) : (
+              <span style={{ fontSize: "16px" }}>🏳️</span>
+            )}
             <span style={{ fontSize: "12px" }}>{awayTeamObj?.name || m.placeholderAway}</span>
           </div>
           {m.status === "finished" && m.awayTeam && (
@@ -71,7 +94,14 @@ function Bracket({ matches, TEAMS }) {
         }}>
           <h2 style={{ fontSize: "32px", color: "#08142D", fontFamily: "var(--font-heading)" }}>🏆 WORLD CUP CHAMPION 🏆</h2>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", margin: "16px 0" }}>
-            <span style={{ fontSize: "56px" }}>{TEAMS[activeWinner]?.flag}</span>
+            <img
+              src={getFlagUrl(TEAMS[activeWinner]?.code)}
+              alt={TEAMS[activeWinner]?.name}
+              width={64}
+              height={48}
+              loading="lazy"
+              style={{ objectFit: "cover", borderRadius: "4px", boxShadow: "0 4px 6px rgba(0,0,0,0.15)" }}
+            />
             <span style={{ fontSize: "40px", fontWeight: "900" }}>{TEAMS[activeWinner]?.name.toUpperCase()}</span>
           </div>
           <p style={{ fontWeight: "700", fontSize: "16px" }}>Congratulations to the Champions of the World Cup 2026!</p>
@@ -116,8 +146,19 @@ function Bracket({ matches, TEAMS }) {
                 </div>
                 
                 <div className={`bracket-node-team ${getWinnerClass(m, m.homeTeam)}`}>
-                  <div className="bracket-node-team-info">
-                    <span>{TEAMS[m.homeTeam]?.flag || "🏳️"}</span>
+                  <div className="bracket-node-team-info" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {TEAMS[m.homeTeam] ? (
+                      <img
+                        src={getFlagUrl(TEAMS[m.homeTeam].code)}
+                        alt={TEAMS[m.homeTeam].name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "16px" }}>🏳️</span>
+                    )}
                     <span style={{ fontSize: "12px" }}>{TEAMS[m.homeTeam]?.name || m.placeholderHome}</span>
                   </div>
                   {m.status === "finished" && m.homeTeam && (
@@ -129,8 +170,19 @@ function Bracket({ matches, TEAMS }) {
                 </div>
 
                 <div className={`bracket-node-team ${getWinnerClass(m, m.awayTeam)}`}>
-                  <div className="bracket-node-team-info">
-                    <span>{TEAMS[m.awayTeam]?.flag || "🏳️"}</span>
+                  <div className="bracket-node-team-info" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {TEAMS[m.awayTeam] ? (
+                      <img
+                        src={getFlagUrl(TEAMS[m.awayTeam].code)}
+                        alt={TEAMS[m.awayTeam].name}
+                        width={24}
+                        height={18}
+                        loading="lazy"
+                        style={{ objectFit: "cover", borderRadius: "2px" }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "16px" }}>🏳️</span>
+                    )}
                     <span style={{ fontSize: "12px" }}>{TEAMS[m.awayTeam]?.name || m.placeholderAway}</span>
                   </div>
                   {m.status === "finished" && m.awayTeam && (
@@ -155,7 +207,18 @@ function Bracket({ matches, TEAMS }) {
               background: "rgba(244, 197, 66, 0.05)"
             }}>
               <span style={{ fontSize: "40px", display: "block" }}>
-                {activeWinner ? TEAMS[activeWinner]?.flag : "🏆"}
+                {activeWinner ? (
+                  <img
+                    src={getFlagUrl(TEAMS[activeWinner].code)}
+                    alt={TEAMS[activeWinner].name}
+                    width={48}
+                    height={36}
+                    loading="lazy"
+                    style={{ objectFit: "cover", borderRadius: "4px", margin: "0 auto" }}
+                  />
+                ) : (
+                  "🏆"
+                )}
               </span>
               <h4 style={{ fontFamily: "var(--font-heading)", margin: "12px 0 6px 0", fontSize: "15px" }}>
                 {activeWinner ? TEAMS[activeWinner]?.name : "TBD"}
