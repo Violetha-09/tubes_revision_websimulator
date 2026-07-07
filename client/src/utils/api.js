@@ -99,3 +99,17 @@ export const login = async (username, password) => {
   }
   return await res.json();
 };
+
+export const register = async (username, password) => {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to register user");
+  }
+  return await res.json();
+};
+
