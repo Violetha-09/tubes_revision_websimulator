@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { getFlagUrl } from "../utils/countryFlag";
+import * as api from "../utils/api";
 
-function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast }) {
+function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast, refreshData }) {
   const [selectedGroupTab, setSelectedGroupTab] = useState("A");
 
   // Keep track of score values being edited locally in input fields
@@ -14,32 +15,31 @@ function Matches({ GROUPS, matches, setMatches, TEAMS, isAdmin, addToast }) {
     }));
   };
 
-  const handleSaveScore = (matchId) => {
+  const handleSaveScore = async (matchId) => {
     const homeVal = tempScores[`${matchId}_home`];
     const awayVal = tempScores[`${matchId}_away`];
 
-    const homeScore = parseInt(homeVal, 10);
-    const awayScore = parseInt(awayVal, 10);
+    const currentMatch = matches.find(m => m.id === matchId);
+    const homeScore = homeVal !== undefined && homeVal !== "" ? parseInt(homeVal, 10) : (currentMatch?.homeScore !== null ? currentMatch?.homeScore : null);
+    const awayScore = awayVal !== undefined && awayVal !== "" ? parseInt(awayVal, 10) : (currentMatch?.awayScore !== null ? currentMatch?.awayScore : null);
 
-    if (isNaN(homeScore) || isNaN(awayScore) || homeScore < 0 || awayScore < 0) {
+    if (homeScore === null || awayScore === null || isNaN(homeScore) || isNaN(awayScore) || homeScore < 0 || awayScore < 0) {
       addToast("Scores must be valid positive numbers!", "error");
       return;
     }
 
-    setMatches((prevMatches) =>
-      prevMatches.map((m) => {
-        if (m.id === matchId) {
-          return {
-            ...m,
-            homeScore,
-            awayScore,
-            status: "finished"
-          };
-        }
-        return m;
-      })
-    );
-    addToast(`Match ${matchId} score saved successfully!`);
+    try {
+      await api.updateMatch(matchId, {
+        homeScore,
+        awayScore,
+        status: "finished"
+      });
+      await refreshData();
+      addToast(`Match ${matchId} score saved successfully!`);
+    } catch (err) {
+      console.error(err);
+      addToast(`Failed to save match score on backend: ${err.message}`, "error");
+    }
   };
 
   const groupMatches = matches.filter((m) => m.type === "group" && m.group === selectedGroupTab);

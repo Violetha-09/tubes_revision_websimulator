@@ -28,10 +28,11 @@ async function getDashboard(req, res) {
 async function getStandings(req, res) {
   try {
     const matches = await db.getMatches();
+    const teams = await db.getTeams();
     const GROUPS = db.GROUPS;
     
     const allStandings = GROUPS.reduce((acc, g) => {
-      acc[g] = db.calculateGroupStandings(g, matches);
+      acc[g] = db.calculateGroupStandings(g, matches, teams);
       return acc;
     }, {});
 

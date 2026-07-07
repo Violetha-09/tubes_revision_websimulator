@@ -12,7 +12,8 @@ function AdminDashboard({
   handleSimulateGroupStage,
   handleAdvanceToKnockout,
   addToast,
-  onLogout
+  onLogout,
+  refreshData
 }) {
   const [activeAdminTab, setActiveAdminTab] = useState("matches");
 
@@ -53,12 +54,8 @@ function AdminDashboard({
     }
 
     try {
-      const response = await api.addTeam({ code, name, group: newTeamGroup, flag: newTeamFlag });
-      const updatedTeams = {
-        ...TEAMS,
-        [code]: response.team
-      };
-      setTeams(updatedTeams);
+      await api.addTeam({ code, name, group: newTeamGroup, flag: newTeamFlag });
+      await refreshData();
       addToast(`Team ${name} (${code}) added successfully!`);
 
       // Reset Form
@@ -83,16 +80,12 @@ function AdminDashboard({
     }
 
     try {
-      const response = await api.updateTeam(selectedTeamCode, {
+      await api.updateTeam(selectedTeamCode, {
         name,
         group: editTeamGroup,
         flag: editTeamFlag
       });
-      const updatedTeams = {
-        ...TEAMS,
-        [selectedTeamCode]: response.team
-      };
-      setTeams(updatedTeams);
+      await refreshData();
       addToast(`Team ${selectedTeamCode} updated successfully!`);
     } catch (err) {
       console.error(err);
@@ -104,9 +97,7 @@ function AdminDashboard({
     if (window.confirm(`Are you sure you want to delete team ${code}?`)) {
       try {
         await api.deleteTeam(code);
-        const updatedTeams = { ...TEAMS };
-        delete updatedTeams[code];
-        setTeams(updatedTeams);
+        await refreshData();
         addToast(`Team ${code} deleted.`);
         if (selectedTeamCode === code) {
           setSelectedTeamCode("");
@@ -142,7 +133,7 @@ function AdminDashboard({
     }
 
     try {
-      const response = await api.updateMatch(selectedMatchId, {
+      await api.updateMatch(selectedMatchId, {
         homeScore: homeScoreVal,
         awayScore: awayScoreVal,
         status: editStatus,
@@ -152,7 +143,7 @@ function AdminDashboard({
         penaltyWinner: editStatus === "finished" && homeScoreVal === awayScoreVal ? editPenaltyWinner : null
       });
 
-      setMatches(response.matches);
+      await refreshData();
       addToast(`Match ${selectedMatchId} updated successfully!`);
 
       // Reset Form

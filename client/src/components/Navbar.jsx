@@ -40,11 +40,15 @@ function Navbar({ activeTab, setActiveTab, onSecretTrigger, isAdmin }) {
           <button className={`nav-btn ${activeTab === "panduan" ? "active" : ""}`} onClick={() => setActiveTab("panduan")}>
             Panduan
           </button>
-          {isAdmin && (
-            <button className={`nav-btn ${activeTab === "admin" ? "active" : ""}`} onClick={() => setActiveTab("admin")}>
-              Admin
-            </button>
-          )}
+          <button className={`nav-btn ${activeTab === "admin" ? "active" : ""}`} onClick={() => {
+            if (isAdmin) {
+              setActiveTab("admin");
+            } else {
+              onSecretTrigger();
+            }
+          }}>
+            Admin
+          </button>
         </nav>
       </div>
     </header>

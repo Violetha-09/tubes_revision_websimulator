@@ -11,6 +11,8 @@ router.use('/teams', teamRoutes);
 router.use('/matches', matchRoutes);
 router.use('/auth', authRoutes);
 
+const { verifyToken, requireRole } = require('../middleware/authMiddleware');
+
 // Dashboard, Standings, Results, Bracket
 router.get('/dashboard', dashboardController.getDashboard);
 router.get('/standings', dashboardController.getStandings);
@@ -18,8 +20,8 @@ router.get('/results', dashboardController.getResults);
 router.get('/bracket', dashboardController.getBracket);
 
 // Tournament Action Aliases
-router.post('/resetTournament', matchController.reset);
-router.post('/simulateGroup', matchController.simulateGroup);
-router.post('/generateKnockout', matchController.advanceKnockout);
+router.post('/resetTournament', verifyToken, requireRole('Admin'), matchController.reset);
+router.post('/simulateGroup', verifyToken, requireRole('Admin'), matchController.simulateGroup);
+router.post('/generateKnockout', verifyToken, requireRole('Admin'), matchController.advanceKnockout);
 
 module.exports = router;

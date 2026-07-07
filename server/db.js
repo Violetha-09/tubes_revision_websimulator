@@ -452,8 +452,9 @@ const simulateGroupStage = async () => {
 };
 
 // Standings Calculator for a specific group (Helper)
-const calculateGroupStandings = (groupChar, matchesList) => {
-  const groupTeams = Object.values(TEAMS).filter((t) => t.group === groupChar);
+const calculateGroupStandings = (groupChar, matchesList, teamsList) => {
+  const currentTeamsList = teamsList || Object.values(TEAMS);
+  const groupTeams = currentTeamsList.filter((t) => t.group === groupChar);
   
   const standings = groupTeams.reduce((acc, team) => {
     acc[team.code] = {
@@ -531,10 +532,11 @@ const getBestThirdPlaceTeams = (allGroupStandings) => {
 // Advance to Knockout Stage
 const advanceToKnockout = async () => {
   const currentMatches = await getMatches();
+  const currentTeams = await getTeams();
   
   // Get group standings
   const allStandings = GROUPS.reduce((acc, g) => {
-    acc[g] = calculateGroupStandings(g, currentMatches);
+    acc[g] = calculateGroupStandings(g, currentMatches, currentTeams);
     return acc;
   }, {});
 

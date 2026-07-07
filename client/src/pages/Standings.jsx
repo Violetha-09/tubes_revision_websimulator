@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getFlagUrl } from "../utils/countryFlag";
+import HeadToHeadGuide from "../components/HeadToHeadGuide";
 
 function Standings({ GROUPS, getGroupStandings, getBestThirdPlaceTeams }) {
   const [hoveredTeam, setHoveredTeam] = useState(null);
@@ -191,6 +192,9 @@ function Standings({ GROUPS, getGroupStandings, getBestThirdPlaceTeams }) {
           </table>
         </div>
       </div>
+
+      {/* Head-to-Head Indicator Guide */}
+      <HeadToHeadGuide />
     </div>
   );
 
