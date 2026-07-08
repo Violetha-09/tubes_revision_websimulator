@@ -1,0 +1,232 @@
+/* CSS Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-main: #070b14;          /* Hitam Pekat */
+    --panel-bg: #0d1424;         /* Biru Gelap Solid */
+    --card-bg: #111a30;          /* Biru Tua Kokoh */
+    --gold: #d4af37;             /* Emas Maskulin */
+    --gold-dim: rgba(212, 175, 55, 0.08);
+    --white: #ffffff;
+    --text-para: #cbd5e1;        /* Putih Abu-abu Terang */
+    --border-solid: #1e2942;     /* Pembatas Tegas */
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--white);
+    line-height: 1.6;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Dashboard Grid Layout (Sidebar Kiri + Konten Kanan) */
+.dashboard {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Side Profile Panel */
+.side-panel {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-solid);
+    border-radius: 16px;
+    padding: 40px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: fit-content;
+    position: sticky;
+    top: 30px;
+}
+
+.badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold);
+    background-color: var(--gold-dim);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    margin-bottom: 20px;
+}
+
+.dev-name {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.dev-nim {
+    font-family: monospace;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 35px;
+}
+
+.dev-meta {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.meta-box {
+    width: 100%;
+    border-left: 3px solid var(--gold);
+    background-color: rgba(255, 255, 255, 0.02);
+    padding: 8px 12px;
+}
+
+.meta-box .label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.meta-box .val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-para);
+}
+
+/* Main Content Area */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Grid Cards */
+.grid-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-solid);
+    border-radius: 16px;
+    padding: 35px;
+    position: relative;
+    transition: border-color 0.3s ease;
+}
+
+.grid-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.card-tag {
+    font-family: monospace;
+    font-size: 11px;
+    color: #64748b;
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    letter-spacing: 1px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title::before {
+    content: '>_';
+    color: var(--gold);
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Sub-grid khusus Point 1 (2 Kolom Sejajar) */
+.sub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.sub-item h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-solid);
+    padding-bottom: 4px;
+}
+
+.sub-item p {
+    font-size: 13px;
+    color: var(--text-para);
+    text-align: justify;
+}
+
+/* Split Row untuk Point 2 & 3 (Berjejer Kiri Kanan) */
+.split-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.clean-list {
+    list-style: none;
+}
+
+.clean-list li {
+    font-size: 13.5px;
+    color: var(--text-para);
+    margin-bottom: 15px;
+    position: relative;
+    padding-left: 18px;
+}
+
+.clean-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Bullet kotak mini emas */
+.clean-list li::before {
+    content: '■';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--gold);
+    font-size: 9px;
+}
+
+.clean-list li strong {
+    color: var(--white);
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Responsive breakpoint untuk Layar Kecil / Tablet / Mobile */
+@media (max-width: 950px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+    .side-panel {
+        position: relative;
+        top: 0;
+        width: 100%;
+    }
+    .split-row {
+        grid-template-columns: 1fr;
+    }
+}
