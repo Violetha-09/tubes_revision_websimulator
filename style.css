@@ -1,0 +1,224 @@
+/* CSS Reset & Variabel */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-dark: #0a0f1d;          /* Hitam kebiruan / Gelap elegan */
+    --navy-blue: #111a36;        /* Biru Tua Utama */
+    --gold: #d4af37;             /* Emas Aksentuation */
+    --gold-glow: rgba(212, 175, 55, 0.15);
+    --white: #ffffff;            /* Putih bersih */
+    --text-muted: #a3b3cc;       /* Putih abu-abu untuk teks deskripsi */
+    --border-color: #223154;     /* Garis pembatas elegan */
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--white);
+    line-height: 1.6;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+}
+
+/* Header Profile Styling */
+.profile-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.header-badge {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    background-color: var(--gold-glow);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 5px;
+    background: linear-gradient(135deg, var(--white) 60%, var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.profile-nim {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-family: monospace;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.meta-item {
+    background-color: var(--navy-blue);
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.meta-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.meta-value {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Cards Container & Layout */
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.card {
+    background-color: var(--navy-blue);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px var(--gold-glow);
+    border-color: rgba(212, 175, 55, 0.4);
+}
+
+.card-number {
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    font-family: 'Arial Black', sans-serif;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+.card:hover .card-number {
+    color: rgba(212, 175, 55, 0.06);
+}
+
+.card-header {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.card-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-header h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background-color: var(--gold);
+    border-radius: 2px;
+}
+
+.card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Bullet List Content */
+.card-content {
+    position: relative;
+}
+
+.bullet-list {
+    list-style: none;
+}
+
+.bullet-list li {
+    font-size: 14px;
+    color: #e2e8f0;
+    margin-bottom: 12px;
+    position: relative;
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+.bullet-list li:last-child {
+    margin-bottom: 0;
+}
+
+.bullet-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--gold);
+    font-size: 11px;
+}
+
+.bullet-list li strong {
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 600px) {
+    body {
+        padding: 20px 15px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .card-number {
+        font-size: 60px;
+    }
+}
