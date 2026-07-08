@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refleksi Individu - M. Raffi Ramadhan</title>
+    <link rel="stylesheet" href="style_raffi.css">
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- Sidebar Profile Panel (Macho & Bold layout) -->
+        <aside class="side-panel">
+            <div class="badge">BACKEND LOG</div>
+            <h1 class="dev-name">M. Raffi Ramadhan</h1>
+            <p class="dev-nim">NIM: 24110400028</p>
+            
+            <div class="dev-meta">
+                <div class="meta-box">
+                    <span class="label">MATA KULIAH</span>
+                    <span class="val">Web Advanced Development</span>
+                </div>
+                <div class="meta-box">
+                    <span class="label">CORE PROJECT</span>
+                    <span class="val">World Cup Simulator API</span>
+                </div>
+                <div class="meta-box">
+                    <span class="label">ENGINEERING ROLES</span>
+                    <span class="val">Backend Dev & QA Lead</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Grid -->
+        <main class="main-content">
+            
+            <!-- Section 1 (Sub-grid untuk 4 poin pengerjaan backend) -->
+            <section class="grid-card full-width">
+                <div class="card-tag">LOG // 01</div>
+                <h2 class="card-title">Apa yang Didapat & Dipelajari</h2>
+                <div class="card-body">
+                    <div class="sub-grid">
+                        <div class="sub-item">
+                            <h3>Eksplorasi Skema Database & ORM</h3>
+                            <p>Belajar merancang ERD relasional secara langsung menggunakan Prisma ORM dengan SQLite sebagai penampung data tim, pertandingan, dan status turnamen. Memahami pengaturan relasi <em>one-to-many</em> antara entitas Team dan Match agar data hasil pertandingan terpetakan akurat.</p>
+                        </div>
+                        <div class="sub-item">
+                            <h3>Sistem Autentikasi JWT</h3>
+                            <p>Belajar membangun alur security admin, mulai dari pembuatan endpoint login, pencocokan password dengan environment variable (.env), hingga pembuatan token JWT. Berhasil menerapkan middleware authenticate untuk memproteksi <em>write endpoints</em> dari akses luar.</p>
+                        </div>
+                        <div class="sub-item">
+                            <h3>Kolaborasi Logika & Integrasi</h3>
+                            <p>Menyusun logika grup dan knockout format 48 tim bersama Ade Imah, serta belajar bekerja sama dengan Violetha untuk proses integrasi API pada berkas JavaScript Frontend di lingkungan localhost.</p>
+                        </div>
+                        <div class="sub-item">
+                            <h3>Penjaminan Mutu API (QA)</h3>
+                            <p>Melakukan pengujian fungsionalitas menyeluruh (Testing & Debugging) menggunakan Postman. Menganalisis respons JSON dan memastikan kode status (seperti 200 OK) keluar tepat pada endpoint krusial demi menjamin sistem bebas dari bug.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Split Row Layout untuk Poin 2 & 3 (Berjejer Kiri-Kanan) -->
+            <div class="split-row">
+                <!-- Section 2 -->
+                <section class="grid-card half-width">
+                    <div class="card-tag">ERR // 02</div>
+                    <h2 class="card-title">Apa yang Masih Kurang Dipahami</h2>
+                    <div class="card-body">
+                        <ul class="clean-list">
+                            <li>
+                                <strong>Automated & Programmatic Testing:</strong> Pengujian dominan bertumpu secara manual via UI dan semi-manual lewat Postman. Masih kurang memahami penulisan <em>unit testing</em> dan <em>integration testing</em> terprogram (seperti menggunakan Jest atau Supertest).
+                            </li>
+                            <li>
+                                <strong>Manajemen Concurrency Skala Besar:</strong> Karena SQLite berbasis file lokal proses berjalan mulus, namun belum memahami penanganan isu <em>race condition</em> atau <em>concurrency locking</em> apabila sistem simulator diakses ribuan pengguna bersamaan di lingkungan enterprise.
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 3 -->
+                <section class="grid-card half-width">
+                    <div class="card-tag">REQ // 03</div>
+                    <h2 class="card-title">Harapan Terkait Mata Kuliah Ini</h2>
+                    <div class="card-body">
+                        <ul class="clean-list">
+                            <li>
+                                <strong>Kurikulum Pengujian Otomatis (QA & CI/CD):</strong> Berharap mata kuliah ini menyediakan materi khusus mengenai Automated Testing dan implementasi CI/CD, agar setiap perubahan backend bisa diuji otomatis sebelum di-deploy.
+                            </li>
+                            <li>
+                                <strong>Arsitektur Enterprise & Caching:</strong> Berharap mahasiswa mulai dikenalkan pada pemanfaatan <em>caching server</em> (seperti Redis) untuk optimasi endpoint API yang sering diakses agar siap menghadapi beban kerja industri nyata.
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
